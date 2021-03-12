@@ -134,7 +134,7 @@ function getPerfectMatching(vertexList, avoidList) {
 		avoidList = [];
 	}
 
-	console.log("VertexList/AvoidList", vertexList, avoidList);
+	// console.log("VertexList/AvoidList", vertexList, avoidList);
 
 	// Generate edges for the blossom solver.
 	const oddEdges = [];
@@ -197,11 +197,23 @@ function ChristofidesSerdyukovApproximate(points) {
 	if (points == undefined) {
 		points = getRandomPoints();
 	}
+
+	if (points.length == 0) {
+		return [];
+	}
+
+	if (points.length == 1) {
+		return [0];
+	}
 	matrix = setAdjacency(points);
 
 	const spanningTreeEdges = getMinimumSpanningTree();
 
+	// console.log("Spanning tree:", spanningTreeEdges);
+
 	const oddVertexes = getOddVertexes(spanningTreeEdges);
+
+	// console.log("Odd vertexes:", oddVertexes);
 
 	const oddMatching = getPerfectMatching(oddVertexes, spanningTreeEdges);
 
@@ -215,9 +227,9 @@ function ChristofidesSerdyukovApproximate(points) {
 
 	const tour = skipRepeated(getEulerTour(unionEdges));
 
-	console.log(tour);
+	// console.log(tour);
 
 	return tour;
 }
 
-ChristofidesSerdyukovApproximate(getRandomPoints(10));
+// ChristofidesSerdyukovApproximate(getRandomPoints(10));
