@@ -1,38 +1,47 @@
-Math.seedrandom('hello.');
-
 function getRandomPoint() {
 	return [Math.random() * 200 - 100, Math.random() * 200 - 100];
 }
 
-const points = [];
-function generateGraph() {
-	const numPoints = 100;
-	for (let i=0; i<numPoints; i++) {
+function getRandomPoints(n) {
+	if (n < 1 || !n) {
+		n = 100;
+	}
+
+	const points = [];
+
+	for (let i=0; i<n; i++) {
 		points.push(getRandomPoint())
 	}
 
-	const adjacencyMatrix = [];
+	return points;
+}
 
-	for (let i=0; i<numPoints; i++) {
-		adjacencyMatrix[i] = [];
-		for (let j=0; j<numPoints; j++) {
-			adjacencyMatrix[i][j] = Infinity
+let matrix = [];
+
+function setAdjacency(points) {
+	matrix = [];
+
+	const n = points.length
+
+	for (let i=0; i<n; i++) {
+		matrix[i] = [];
+		for (let j=0; j<n; j++) {
+			matrix[i][j] = Infinity
 		}
 	}
 
-	for (let i=0; i<numPoints; i++) {
-		adjacencyMatrix[i][i] = 0;
-		for (let j=i+1; j<numPoints; j++) {
-			adjacencyMatrix[i][j] = adjacencyMatrix[j][i] = 
+	for (let i=0; i<n; i++) {
+		matrix[i][i] = 0;
+		for (let j=i+1; j<n; j++) {
+			matrix[i][j] = matrix[j][i] = 
 				Math.pow(points[i][0] - points[j][0], 2) + 
 				Math.pow(points[i][1] - points[j][1], 2)
 		}
 	}
 
-	return adjacencyMatrix;
+	return matrix;
 }
 
-const matrix = generateGraph();
 function edgeWeight(e) {
 	return matrix[e[0]][e[1]];
 }
@@ -51,11 +60,11 @@ function getMinimumSpanningTree() {
 	edges.sort((a, b) => edgeWeight(a) - edgeWeight(b));
 
 	function union(setA, setB) {
-		let _union = new Set(setA)
-		for (let elem of setB) {
-			_union.add(elem)
+		const _union = new Set(setA);
+		for (const elem of setB) {
+			_union.add(elem);
 		}
-		return _union
+		return _union;
 	}
 
 	const tree = [];
@@ -184,28 +193,31 @@ function skipRepeated(vertexes) {
 	return newPath;
 }
 
-// console.log("Points:", points);
-// console.log("Distances:", matrix);
-const spanningTreeEdges = getMinimumSpanningTree();
-console.log("Spanning tree edges:", spanningTreeEdges);
-const oddVertexes = getOddVertexes(spanningTreeEdges);
-console.log("Odd vertexes:", oddVertexes);
-const oddMatching = getPerfectMatching(oddVertexes, spanningTreeEdges);
-console.log("Odd matching:", oddMatching);
-
-const unionEdges = spanningTreeEdges.concat(oddMatching);
-// This is a list of edges; find the union of it.
-// It shouldn't be possible for an edge to be in both...
-
-// Is it?
-for (const sEdge of spanningTreeEdges) {
-	for (const oEdge of oddMatching) {
-		if (sEdge[0] == oEdge[0] && sEdge[1] == oEdge[1]) {
-			console.log("Solve that plz.", sEdge);
-		}
+function ChristofidesSerdyukovApproximate(points) {
+	if (points == undefined) {
+		points = getRandomPoints();
 	}
+	matrix = setAdjacency(points);
+
+	const spanningTreeEdges = getMinimumSpanningTree();
+
+	const oddVertexes = getOddVertexes(spanningTreeEdges);
+
+	const oddMatching = getPerfectMatching(oddVertexes, spanningTreeEdges);
+
+	const unionEdges = spanningTreeEdges.concat(oddMatching);
+
+	// Quickly make sure that an edge isn't in both.
+	for (const sEdge of spanningTreeEdges)
+		for (const oEdge of oddMatching)
+			if (sEdge[0] == oEdge[0] && sEdge[1] == oEdge[1])
+				console.log("Solve that plz.", sEdge);
+
+	const tour = skipRepeated(getEulerTour(unionEdges));
+
+	console.log(tour);
+
+	return tour;
 }
 
-const tour = skipRepeated(getEulerTour(unionEdges));
-
-console.log(tour);
+ChristofidesSerdyukovApproximate(getRandomPoints(10));
